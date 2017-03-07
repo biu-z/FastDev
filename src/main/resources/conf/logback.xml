@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder  charset="UTF-8">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.home}/logs/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${catalina.home}/logs/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>20MB</maxFileSize>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.home}/logs/debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${catalina.home}/logs/debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>60MB</maxFileSize>
+        </rollingPolicy>
+
+        <!--  这个得注释掉，因为加上了会重复打印，原因看下面就知道了  -->
+        <!-- <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter> -->
+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${catalina.home}/logs/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${catalina.home}/logs/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>20MB</maxFileSize>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 把代码里的日志级别调为debug级别 -->
+    <logger name="com.biu" level="DEBUG" >
+        <appender-ref ref="info"></appender-ref>
+        <!-- 你们可以试一下     反注释下面的代码会有什么效果吐舌头 -->
+        <!-- <appender-ref ref="debug"></appender-ref> -->
+        <appender-ref ref="error"></appender-ref>
+    </logger>
+
+    <!-- 就是这个监控了mybatis日志输出，配合上面的“dao” -->
+    <logger name="mybatis" level="DEBUG"/>
+
+    <!-- 以下这些也没用
+        <logger name="com.apache.ibatis" level="DEBUG"/>
+        <logger name="java.sql.Connection" level="DEBUG"/>
+        <logger name="java.sql.Statement" level="DEBUG"/>
+        <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+    -->
+
+    <!-- 以下这些我试过，没用
+        <logger name="org.mybatis" level="DEBUG" additivity="false">
+                <appender-ref ref="debug"/>
+        </logger>
+        <logger name="org.apache.ibatis" level="DEBUG" additivity="false">
+                <appender-ref ref="debug"/>
+        </logger>
+        <logger name="java.sql" level="DEBUG" additivity="false">
+                <appender-ref ref="debug"/>
+         </logger>
+    -->
+
+    <!-- 这个是日志总控制开关，这里面我把“debug“加上去 ，所以上面那个注释的就不要-->
+    <root level="DEBUG">
+        <appender-ref ref="debug"></appender-ref>
+        <appender-ref ref="STDOUT" />
+    </root>
+
+
+</configuration>

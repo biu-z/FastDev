@@ -1,0 +1,15 @@
+package  ${packageName}.mapper;
+
+import com.biu.common.persistence.annotation.MyBatisRepository;
+import  ${packageName}.model.${modelName};
+import com.biu.system.util.MapperUtils;
+
+/**
+ * Created by Biu.
+ * ${func.getTime()}
+ */
+${"@"}MyBatisRepository
+public interface ${modelName}Mapper extends MapperUtils<${modelName}> {
+
+
+}

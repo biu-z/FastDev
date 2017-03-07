@@ -1,0 +1,126 @@
+	<div class="space-4"></div>
+			<table class="table table-bordered table-striped">
+			@ for(x in col) {
+			 @ if(!isEmpty(x.title)) {
+					<tr>
+						<td colspan="4"><span style="font-size:15px;">${x.title!}</span>
+						@ if(!isEmpty(x.small)) {
+							<small>
+								<i class="ace-icon fa fa-angle-double-right">
+									${x.small!}
+								</i>
+							</small>
+						@ }
+						</td>
+					<tr>
+			 @ } else {
+				@	var display = (func.like(x.type,"hidden")) ? "style='display:none'" : "";
+				@   var placeholder = (!isEmpty(x.placeholder)) ? x.placeholder : ("暂无"+x.name);
+				@	if(x.newline) {
+						<tr ${display!}>
+				@	}
+							<td style="vertical-align: middle !important;width:15%;text-align:right;"> ${x.name!} </td>	
+							@ var paddingstyle = (x.type == "kindeditor") ? "padding:0" : "";
+							@ var tdstyle = (x.length >= 5) ? "colspan='3' style='width:85%" : "style='width:35%";
+							@ tdstyle = (x.type == "kindeditor") ? (tdstyle + ";padding:0;'") : (tdstyle + "'");
+							<td ${tdstyle}>
+				@			if(x.type == "textarea") {
+								<textarea id="_${x.index!}" style="height:${x.height!'200px'}" name="${table!}.${x.index!}" disabled value="${x.value!}" placeholder="${placeholder!}" class="form-control"></textarea>
+				@			}
+				@			else if(x.type == "image") {
+								<img id="_${x.index!}"  data-type="image" data-auto="${x.auto!}" style="padding:2px; border:1px solid #ccc;cursor:pointer;width:${x.width!'168px'};height:${x.height!'110px'};" name="${table!x.table}.${x.index!}" src="${x.src!}"></img>
+				@			}
+				@			else if(x.type == "kindeditor") {
+								<blade:kindeditor readOnly="true" value="${x.value!}" id="_${x.index}" name="${table!x.table}.${x.index!}" height="${x.height!'200px'}" required="${x.required!}" />
+				@			}
+				@			else if(x.type == "checkbox") {
+								<blade:checkbox id="_${x.index!}" name="${table!x.table}.${x.index!}" checked="${x.checked!}" disabled="disabled" />
+				@			}
+				@			else if(x.type == "checkbox2") {
+								<blade:checkbox2 id="_${x.index!}" name="${table!x.table}.${x.index!}" checked="${x.checked!}" disabled="disabled" />
+				@			}
+				@			else if(x.type == "imgupload") {
+								<blade:imgupload id="_${x.index!}" name="${table!x.table}.${x.index!}" auto="${x.auto!}"  display="none"/>
+				@			}
+				@			else if(x.type == "fileupload") {
+								<blade:fileupload  id="_${x.index!}" name="${table!x.table}.${x.index!}" display="none"/>
+				@			}
+				@			else if(x.type == "hidden") {
+								<input type="hidden" id="_${x.index!}" name="${table!}.${x.index!}"  value="${x.value!}" />
+				@			}
+				@			else {
+								<span id="_${x.index!}" style="border:0px;">${x.value!}</span>
+				@			}
+							</td>
+				@			if(x.length >= 5) {
+						</tr>
+				@			}
+				@ 	if(!x.newline){
+					 </tr>
+				@	}
+				@}
+			 @}
+			</table>
+			<script	type="text/javascript">
+				$(function(){
+					var _model = ${model!"'error'"};
+					if(_model == "error"){
+						layer_alert("读取数据失败!", "error");
+						return;
+					}
+					for(var x in _model){
+						var $x = $("#_" + x);
+						if(_model[x] != null && $x.attr("data-type")=="image"){
+							var src = $x.attr("data-auto") + _model[x];
+							$x.attr("src", src);
+							$x.bind("click", function(){
+								window.open($(this).attr("src"));
+							});
+						}
+						else if(_model[x] != null && $x.attr("data-type") == "imgupload"){
+							var id = _model[x];
+							initImgUpload(id);
+							$x.val(id);
+						}
+						else if(_model[x] != null && $x.attr("data-type") == "fileupload"){
+							var ids = _model[x];
+							eval("_" + x + "_initFileUpload('" + ids + "', 'view')"); 
+							$x.val(ids);
+						}
+						else if($x.is("span")){
+							var _x = _model[x];
+							if(_x == null || _x == ""){
+								_x = "请选择";
+							}
+							$x.html(_x);
+						}
+						else if(_model[x]!=null && $("#_" + x + "_chb").attr("type")=="checkbox"){
+							if(_model[x]=="1"){
+								$("#_"+x+"_chb").attr("checked", "checked");
+							}
+							else{
+								$x.removeAttr("checked");
+							}
+						}
+						else {
+							$x.val(_model[x]);
+						}
+					}
+					
+				});
+			</script>
+			
+			
+	<div class="space-4"></div>
+	<style>
+		.form-control ,textarea,select,input[type="text"],input[type="password"],input[type="datetime"],input[type="datetime-local"],input[type="date"],input[type="month"],input[type="time"],input[type="week"],input[type="number"],input[type="email"],input[type="url"],input[type="search"],input[type="tel"],input[type="color"] {
+			border-width: 0px;
+			background-color:#fcfcfc;
+		}
+		.ke-container {
+			border-width: 0px;
+		}
+		.ke-input-text {
+			background-color: #f1f1f1 !important;
+		}
+	</style>

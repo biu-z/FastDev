@@ -1,0 +1,21 @@
+@layout("/common/_container.html"){
+	<!-- PAGE CONTENT BEGINS -->
+	<form data-url="${ctxPath}/${code}/save" method="post" class="form-horizontal" role="form">
+		<!-- 表单 -->
+		@ var _table="blade_notice";
+		@ var _col=[
+		@			  {name:"通知标题",index:"title",type:"text",newline:true,length:8,required:"required"},
+		@			  {name:"公告类型",index:"type", type:"combotree_102",check:"radio",newline:true,length:3,required:"required"},
+		@			  {name:"通知时间",index:"publishtime", type:"laydate",format:"YYYY-MM-DD hh:mm:ss",newline:false,length:3,required:"required"},
+		@			  {name:"通知内容",index:"content", type:"kindeditor",newline:true,length:8,required:"required"},
+		@			  {name:"创建人",index:"creater", value:shiro.getUser().id,type:"hidden",newline:true,length:8},
+		@			  {name:"创建时间",index:"createtime", value:func.getTime(),type:"hidden",newline:true,length:8}
+		@		   ];
+		@ include("/common/_curd/_add_table.html",{"col":_col,"table":_table}){}
+		
+		<!-- 按钮 -->
+		@ include("/common/_curd/_btn.html",{btn_save:"新增",btn_close:"关闭"}) {}
+
+	</form>
+	
+@}

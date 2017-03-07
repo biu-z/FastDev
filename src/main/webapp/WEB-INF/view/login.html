@@ -1,0 +1,55 @@
+<html>
+<head>
+    <title>用户登录-SpringBlade企业级开发平台</title>
+    <link rel="shortcut icon" href="${ctxPath}/static/style/images/favicon.ico" type="image/x-icon" />
+    <meta name="keywords" content="springblade,spring,springmvc,beetl,beetlsql,shiro">
+    <meta name="description" content="springblade spring springmvc beetl beetlsql ehcache shiro java开发框架,权限管理,多角色,父子角色,权限代理,精确到按钮.">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="${ctxPath}/static/style/css/login.css" />
+	<script src="${ctxPath}/static/assets/js/jquery.js" type="text/javascript"></script>	
+	<script src="${ctxPath}/static/blade/js/blade-toolbox.js" type="text/javascript"></script>
+	<script src="${ctxPath}/static/blade/js/blade-ajax.js" type="text/javascript"></script>	
+    <script type="text/javascript">
+		$(function(){
+			BladeApp.addCtx("${ctxPath}");
+		});
+	</script>
+    <script src="${ctxPath}/static/style/js/login.js" type="text/javascript"></script>
+	<script src="${ctxPath}/static/layer/layer.js" type="text/javascript"></script>
+</head>
+<body onkeydown="enterlogin();">
+<div class="top_div"></div>
+<div style="background: rgb(255, 255, 255); margin: -120px auto auto; border: 1px solid rgb(231, 231, 231); border-image: none; width: 400px; height: 245px; text-align: center;">
+    <form method="post" id="loginform" data-imgcode="imgcode" action="${ctxPath}/login">
+        <div style="width: 165px; height: 96px; position: absolute;">
+            <div class="tou"></div>
+            <div class="initial_left_hand" id="left_hand"></div>
+            <div class="initial_right_hand" id="right_hand"></div>
+        </div>
+        <P style="padding: 30px 0px 10px; position: relative;">
+            <span class="u_logo"></span>
+            <input class="ipt" type="text" name="account" placeholder="请输入用户名" value="" />
+        </P>
+        <P style="padding: 0px 0px 10px;position: relative;">
+            <span class="p_logo"></span>
+            <input class="ipt" id="password" type="password" name="password" placeholder="请输入密码" value="" />
+        </P>
+        <P style="position: relative;text-align:left;">
+            <span class="p_logo"></span>
+            <input class="iptv" type="text" name="imgCode" placeholder="请输入验证码" value="" />
+            <img id="imgcode" src="${ctxPath}/captcha" onclick="this.src = '${ctxPath}/captcha?v=' + Math.random()" height="35" style="vertical-align: middle;border: 1px solid #ccc;border-radius:4px;cursor: pointer;" />
+        </P>
+        <div style="height: 50px; line-height: 50px; margin-top: 20px; border-top-color: rgb(231, 231, 231); border-top-width: 1px; border-top-style: solid;">
+            <P style="margin: 0px 55px 20px 55px;">
+                <span style="float: left;">
+                    <button style="width:65px;height:35px;margin-top:10px;cursor:pointer;background: rgb(0, 142, 173); padding: 7px 10px; border-radius: 4px; border: 1px solid rgb(26, 117, 152); border-image: none; color: rgb(255, 255, 255); font-weight: bold;" type="reset" >重 置</button>
+                </span>
+                <span style="float: right;">
+                	<button style="width:220px;height:35px;margin-top:10px;cursor:pointer;background: rgb(0, 142, 173); padding: 7px 10px; border-radius: 4px; border: 1px solid rgb(26, 117, 152); border-image: none; color: rgb(255, 255, 255); font-weight: bold;" type="submit" >登 录</button>
+                </span>
+            </P>
+        </div>
+    </form>
+</div>
+</body>
+</html>

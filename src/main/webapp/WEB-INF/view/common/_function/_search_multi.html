@@ -1,0 +1,137 @@
+<div style="height:50px"></div>
+<div id="_search_hidden" style="width: 98%;position: absolute;top: 1%;z-index: 1000;background-color: #fcfcfc; border: 1px solid #cccccc; border: 1px solid rgba(0, 0, 0, 0.15);">
+<form class="form-inline" style="margin-bottom: 5px" id = "_search_form">
+	<div class="row" style="margin-left: 20px;margin-right: 20px">
+		@ for(x in col){
+			@ if(xLP.index > ((12/x.length!3) - 1)){
+				<div class="input-group col-xs-${x.length_xs!12} col-md-${x.length_md!3} _search_hidden" style="display:none;margin-top: 5px">
+			@ } else{
+				<div class="input-group col-xs-${x.length_xs!12} col-md-${x.length_md!3}" style="margin-top: 5px">
+			@ }
+			<div class="input-group-addon" style="width: 45%;background-color: #f5f5f5;">${x.name!}</div>
+				@ if(x.type == "text"){
+					<input type="text" class="form-control" id="_${x.index!}" name="${x.index!}" placeholder = "${x.placeholder!}">
+				@ }
+				@ else if (func.like(x.type,"select_")) {
+				@ var num = strutil.replace(x.type, "select_", "");
+					<blade:select code = "${num}" name = "${x.index!}" value = "${x.value!0}" type = "dict" intercept = "${x.intercept!}"/>
+				@ }
+				@ else if(x.type == "selectDiy"){
+					<blade:select  name = "${x.index!}" value = "${x.value!0}" type = "diy" source = "${x.source!}" intercept = "${x.intercept!}"/>
+				@ }
+				@ else if(x.type == "selectDept"){
+					<blade:select  name = "${x.index!}" value = "${x.value!0}" type = "dept" intercept = "${x.intercept!}"/>
+				@ }
+				@ else if(x.type == "selectRole"){
+					<blade:select  name = "${x.index!}" value = "${x.value!0}" type = "role" intercept = "${x.intercept!}"/>
+				@ }
+				@ else if(x.type == "selectUser"){
+					<blade:select  name = "${x.index!}" value = "${x.value!0}" type = "user" intercept = "${x.intercept!}"/>
+				@ }
+				@ else if(x.type == "laydate" || x.type == "date"){
+					<blade:laydate id = "_${x.index!}" name = "${x.index!}" value = "${x.value!}" format = "${x.format!}" placeholder = "${x.placeholder!'请选择日期'}"/>
+				@ }
+				@ else if(func.like(x.type, "opentree")){
+					<blade:opentree x = "${x}" placeholder = "${x.placeholder!'请选择'}"/>
+				@ }
+				@ else if(func.like(x.type,"combotree")) {
+					<blade:combotree  id="_${x.index!}" name="${x.index!}" value="${x.value!}" type="${x.type!}" source="${x.source!}" check="${x.check!}" treeId="${x.treeId!}" intercept="${x.intercept!}" where="${x.where!}" ext="${x.ext!}" width="${x.width!}" height="${x.height!}" readonly="${x.readonly!}" required="${x.required!}" placeholder="${x.placeholder!'输入后请按回车搜索'}"/>
+				@ }
+			</div>
+		@ }
+		<button class="btn btn-sx btn-white" type="button"  style="margin-left: 10px;margin-top: 5px;float: right;" id="gotoReset">重置</button>
+		@ if((col.~size + 1) > ((12/x.length!3)-1)){
+		<button class="btn btn-sx btn-white" type="button"  style="margin-left: 10px;margin-top: 5px;float: right;" id="gotoOpenSerch">更多条件</button>
+		@ }
+		<button  type="button" class="btn btn-sx btn-white" style="margin-left: 10px;margin-top: 5px;float: right;" id="gotoSearch">查询</button>
+	</div>
+</form>
+</div>
+<script type="text/javascript">
+	var isAutoPage = true;
+	$(function() {
+		$("#gotoOpenSerch").bind("click", function() {
+			var textValue = $(this).text();
+			if (textValue == "更多条件") {
+				$.each($("._search_hidden"), function(i, n) {
+					$(this).css("display", "");
+				});
+				$(this).text("隐藏条件");
+			} else {
+				$.each($("._search_hidden"), function(i, n) {
+					$(this).css("display", "none");
+				});
+				$(this).text("更多条件");
+			}
+		});
+
+		$("#gotoReset").bind("click", function() {
+			var filter = "";
+			if (typeof (_filter) != "undefined") {
+				filter = _filter;
+			}
+			
+			$.each($(".form-control"), function(i, n) {
+				$(this).val("");
+			});
+			
+	        btn_stage.bind(toolbar);
+			$jqGrid.jqGrid('setGridParam', {
+				datatype : "json",
+				postData : {
+					where : filter
+				},
+				page : 1
+			}).trigger("reloadGrid");
+		});
+
+		$("#gotoSearch").bind("click", function() {
+			$.each($("._search_hidden"), function(i, n){
+				  $(this).css("display", "none");
+			});
+			$("#gotoOpenSerch").text("更多条件");
+			
+			var filter = "";
+			if (typeof (_filter) != "undefined") {
+				filter = _filter;
+			}
+			var where = (BladeTool.isEmpty(filter)) ? "{" : filter.replace("}", ",");
+			var hasWhere = false;
+			
+			$.each($(".form-control"), function(i, n) {
+				var key = $(this).attr("name");
+				var value = $(this).val();
+				if (BladeTool.isNotEmpty(value)) {
+					hasWhere = true;
+				}
+				if (BladeTool.isNotEmpty(key) && BladeTool.isNotEmpty(value)) {
+					where += "\"" + key + "\":\"" + value + "\"" + ",";
+				}
+			});
+			
+			if (!hasWhere && BladeTool.isEmpty(filter)) {
+				where = "";
+			}
+			if (BladeTool.isNotEmpty(where) && BladeTool.isEmpty(exwhere)) {
+				where = where.substring(0, where.length - 1);
+				where += "}";
+
+			} else if (BladeTool.isNotEmpty(where) && BladeTool.isNotEmpty(exwhere)) {
+				where += exwhere.replace("{", ",");
+			} else {
+				where = BladeTool.format(exwhere);
+			}
+			where = BladeTool.isEmpty(where) ? "" : encodeURI(where);
+			isAutoPage = (BladeTool.isEmpty(where) ? true : false);
+			var pageNum = $jqGrid.getGridParam('page');
+			$jqGrid.jqGrid("setGridParam", {
+				datatype : "json",
+				postData : {
+					where : where
+				},
+				page: (isAutoPage) ? pageNum : 1
+			}).trigger("reloadGrid");
+		});
+		
+	});
+</script>

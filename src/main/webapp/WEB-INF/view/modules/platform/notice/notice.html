@@ -1,0 +1,105 @@
+@ layout("/common/_container.html"){
+<script type="text/javascript">
+	var ctx = "${ctxPath}";
+	var grid_selector = "#grid-table";
+	var pager_selector = "#grid-pager";
+	var _filter = "";//如果点了搜索按钮想让过滤条件失效,则将定义放入initGrid()中
+	
+	$(function(){
+		initGrid();
+		initMenuBtn("btns","${code}");
+	});
+	
+	function initGrid(){
+		var grid_url = ctx + "/${code}/list";//查询列表接口
+		var _colnames=[ "序列","通知标题", "公告类型", "公告类型", "创建人", "创建时间", "发布时间"];
+		var _colmodel=[   {name:"id", index:"id", width:80, hidden:true},
+						  {name:"title", index:"title", width:250},
+						  {name:"type", index:"type", width:80, hidden:true},
+						  {name:"typename", index:"type", width:80, formatter:rowShow},
+						  {name:"creatername", index:"creater", width:80},
+						  {name:"createtime", index:"createtime", width:135, align:"center"},
+						  {name:"publishtime", index:"publishtime", width:135, align:"center"}
+						];
+		
+		@ if (shiro.lacksRole('administrator')) {
+			_filter = '{"creater_equal":"${shiro.getUser().id}"}';//过滤,只看到自己发布,若是管理员则看到全部
+		@ }
+		
+		
+		jQuery(grid_selector).jqGrid({
+			url:grid_url,
+		    shrinkToFit:false,//适用于较少字段,响应式
+			colNames:_colnames,
+			colModel:_colmodel, 
+			jsonReader:{id : "id"},
+			pager : pager_selector,
+			postData: {where: _filter, sort: "id", order: "desc"}
+		});
+
+	}
+	
+	function rowShow(cellvalue, options, rowObject) {
+		var lx = rowObject.type;
+		var sclass = "";
+		switch (lx) {
+		case 1:
+			sclass = "label label-info arrowed-right arrowed-in";
+			break;
+		case 2:
+			sclass = "label label-success arrowed arrowed-right";
+			break;
+		case 3:
+			sclass = "label label-info arrowed arrowed-in-right";
+			break;
+		case 4:
+			sclass = "label label-warning arrowed arrowed-right";
+			break;
+		case 5:
+			sclass = "label label-danger arrowed arrowed-right";
+			break;
+		case 6:
+			sclass = "label label-danger arrowed arrowed-in-right";
+			break;
+		case 7:
+			sclass = "label arrowed arrowed-right";
+			break;
+			default:
+				sclass = "label label-info arrowed-right arrowed-in";
+			break;
+		}
+		
+		var html = "<span class='" + sclass + "'>" + rowObject.typename + "</span>";
+		return html;
+	}
+	
+</script>
+
+
+	<!-- 配置grid -->
+	<div class="row">	
+		<div class="col-xs-12 tb-grid">
+			<!-- 配置查询 -->
+			@ var _col=[
+			@			  {name:"通知标题",index:"title", type:"text"},
+			@		      {name:"公告内容",index:"content",type:"text"},
+			@		      {name:"公告类型",index:"toint_type_equal",type:"combotree_102",check:"radio", height:"180px"},
+			@//		      {name:"公告类型",index:"toint_type_equal",type:"opentreeDiy", source:"notice.diy"},//_search_multi.html自定义数据源用法
+			@//		      {name:"公告类型",index:"toint_type_equal",type:"opentreeDiy_notice.diy"},//_search.html自定义数据源用法
+			@		      {name:"创建人",index:"toint_creater_equal",type:"selectUser"},
+			@			  {name:"发布时间(大于)",index:"publishtime_gt", type:"date"},
+			@			  {name:"发布时间(小于)",index:"publishtime_lt", type:"date"}
+			@		   ];
+			@ include("/common/_function/_search_multi.html",{"col":_col}){}
+			<!-- 按钮组 -->
+			<div class="welljq well-sm" id="btns"></div>
+			<!-- grid -->
+			<table id="grid-table"></table>
+			<!-- 分页 -->
+			<div id="grid-pager"></div>
+		</div>
+	</div>
+	
+	<!-- 引入列表页所需js -->
+	@include("/common/_listscript.html"){}
+@}	

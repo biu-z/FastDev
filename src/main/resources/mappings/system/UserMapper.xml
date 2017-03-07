@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.biu.system.mapper.UserMapper">
+    
+	<select id="queryParent" resultType="java.lang.String">
+		select queryParent(#{param},#{table}) as tmp
+	</select>
+
+	<select id="queryChildren" resultType="java.lang.String">
+		select queryChildren(#{param},#{table}) as tmp
+	</select>
+
+	<select id="getUser" resultType="java.lang.String">
+		select * from blade_user where status = 1 and name is not null
+	</select>
+
+	
+</mapper>

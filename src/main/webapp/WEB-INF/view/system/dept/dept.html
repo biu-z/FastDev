@@ -1,0 +1,121 @@
+@layout("/common/_container.html"){
+<script type="text/javascript">
+	var ctx="${ctxPath}";
+	var grid_selector = "#grid-table";
+	var pager_selector = "#grid-pager";
+	
+	$(function(){
+		initGrid();
+		initMenuBtn("btns","${code}");
+	});
+	
+	/**
+	*用于执行按钮加载事件结束后操作的ajax请求(否则会导致回调覆盖,也可以使用 async:false)
+	*/
+	function doOther(){
+		initZtree();
+	}
+	
+	function initGrid(){
+		var grid_url = ctx+"/${code}/list";//查询列表接口
+		var _colnames=[ "序列","部门简称", "部门全称","上级部门","排序","备注"];
+		var _colmodel=[   {name:"id",index:"id", width:80,hidden:true},
+						  {name:"simplename",index:"simplename", width:100},
+						  {name:"fullname",index:"fullname", width:150},
+						  {name:"pname",index:"pid", width:100},
+						  {name:"num",index:"num", width:30,align:"right"},
+						  {name:"tips",index:"tips", width:100}
+						];
+		
+		jQuery(grid_selector).jqGrid({
+			url:grid_url,
+		    shrinkToFit:true,//适用于较少字段,响应式
+			colNames:_colnames,
+			colModel:_colmodel, 
+			jsonReader:{id:"id"},
+			pager : pager_selector,
+			postData: {sort: "id", order: "asc"}
+		});
+	}
+	
+
+	
+	function initZtree(){
+		var setting = {
+				data: {
+					simpleData: {
+						enable: true
+					}
+				},
+				callback: {
+					beforeClick: zTreeBeforeClick
+				}
+			};
+		var ajax = new Ajax("${ctxPath}/cache/deptTreeList", function(data){
+			if(data.code===0){
+				$.fn.zTree.init($("#zTree"), setting, data.data);
+			}
+			else{
+				layer_alert("数据加载失败", "error");
+			}
+		});
+		ajax.start();
+	}
+	
+	function zTreeBeforeClick(treeId, treeNode, clickFlag) {
+		@ if(shiro.hasRole("administrator")) {
+		    var id=treeNode.id;
+		    if(id==""){
+			    exwhere="";
+			    searchGrid();
+			    return;
+		    }
+		    else{
+			    exwhere="{\"toint_pId_equal\":\""+id+"\",\"toint_or_id_equal\":\""+id+"\"}";
+			    searchGrid();
+		    }
+		@ }
+	};
+	
+</script>
+
+
+	<!-- 配置grid -->
+	<div class="row"> 
+		<div class="col-sm-3">
+			<div class="widget-box widget-color-blade">
+				<div class="widget-header">
+					<h4 class="widget-title lighter smaller">部门组织架构</h4>
+				</div>
+
+				<div class="widget-body">
+					<div class="widget-main padding-8">
+						<ul id="zTree" class="ztree"></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-9 tb-grid">
+			<!-- 配置查询 -->
+			@ var _col=[
+			@			  {name:"部门简称",index:"simplename", type:"text"},
+			@			  {name:"部门全称",index:"fullname", type:"text"},
+			@			  {name:"上级部门",index:"toint_pid_equal",type:"selectDept"},
+			@			  {name:"排序",index:"num",type:"text"},
+			@			  {name:"备注",index:"tips", type:"text"}
+			@		   ];
+			@ include("/common/_function/_search.html",{"col":_col}){}
+			<!-- 按钮组 -->
+			<div class="welljq well-sm" id="btns"></div>
+			<!-- grid -->
+			<table id="grid-table"></table>
+			<!-- 分页 -->
+			<div id="grid-pager"></div>
+		</div>
+	</div>
+	<!-- 引入列表页所需js -->
+	@include("/common/_listscript.html"){}
+	<link rel="stylesheet" href="${ctxPath}/static/zTree/css/zTreeStyle/zTreeStyle.css" />
+	<script src="${ctxPath}/static/zTree/js/jquery.ztree.core.js" type="text/javascript" ></script>
+@}	
